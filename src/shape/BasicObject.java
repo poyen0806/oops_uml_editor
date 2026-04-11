@@ -12,7 +12,7 @@ public abstract class BasicObject extends Shape {
     protected int x, y, width, height;
     protected List<Port> ports = new ArrayList<>();
     protected boolean isSelected = false;
-    public boolean isHovered = false;
+    protected boolean isHovered = false;
 
     public BasicObject(int x, int y, int width, int height) {
         this.x = x;
@@ -23,26 +23,22 @@ public abstract class BasicObject extends Shape {
 
     protected abstract void createPorts();
 
-    public int getX() {
-        return x;
-    }
+    @Override
+    public void setSelected(boolean selected) { this.isSelected = selected; }
+    @Override
+    public boolean isSelected() { return isSelected; }
 
-    public int getY() {
-        return y;
-    }
+    @Override
+    public void setHovered(boolean hovered) { this.isHovered = hovered; }
+    @Override
+    public boolean isHovered() { return isHovered; }
 
-    public void setSelected(boolean selected) {
-        this.isSelected = selected;
-    }
-
-    public void setHovered(boolean hovered) {
-        this.isHovered = hovered;
-    }
-
+    @Override
     public boolean isContained(int px, int py) {
         return px >= x && px <= x + width && py >= y && py <= y + height;
     }
 
+    @Override
     public Rectangle getBounds() {
         return new Rectangle(x, y, width, height);
     }
@@ -63,4 +59,9 @@ public abstract class BasicObject extends Shape {
             g2d.fillRect(loc.x - PORT_OFFSET, loc.y - PORT_OFFSET, PORT_VISUAL_SIZE, PORT_VISUAL_SIZE);
         }
     }
+
+    public int getX() { return x; }
+    public int getY() { return y; }
+    public int getWidth() { return width; }
+    public int getHeight() { return height; }
 }

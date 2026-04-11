@@ -1,6 +1,6 @@
 package mode;
 
-import shape.BasicObject;
+import shape.Shape;
 import ui.Canvas;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -16,7 +16,7 @@ public class SelectMode extends Mode {
     @Override
     public void mousePressed(MouseEvent e) {
         startPoint = e.getPoint();
-        BasicObject target = canvas.findObjectAt(e.getX(), e.getY());
+        Shape target = canvas.findObjectAt(e.getX(), e.getY());
 
         canvas.clearSelection();
         if (target != null) {
@@ -29,7 +29,7 @@ public class SelectMode extends Mode {
     public void mouseMoved(MouseEvent e) {
         canvas.clearAllHover();
 
-        BasicObject target = canvas.findObjectAt(e.getX(), e.getY());
+        Shape target = canvas.findObjectAt(e.getX(), e.getY());
         if (target != null) {
             target.setHovered(true);
         }
