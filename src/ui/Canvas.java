@@ -1,7 +1,9 @@
 package ui;
 
 import mode.Mode;
+import shape.Port;
 import shape.Shape;
+
 import javax.swing.JPanel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -16,14 +18,19 @@ public class Canvas extends JPanel {
     public Canvas() {
         setBackground(Color.WHITE);
         MouseAdapter adapter = new MouseAdapter() {
-            @Override public void mousePressed(MouseEvent e) {
-                if(currentMode != null) currentMode.mousePressed(e);
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (currentMode != null) currentMode.mousePressed(e);
             }
-            @Override public void mouseReleased(MouseEvent e) {
-                if(currentMode != null) currentMode.mouseReleased(e);
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (currentMode != null) currentMode.mouseReleased(e);
             }
-            @Override public void mouseDragged(MouseEvent e) {
-                if(currentMode != null) currentMode.mouseDragged(e);
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                if (currentMode != null) currentMode.mouseDragged(e);
             }
         };
         addMouseListener(adapter);
@@ -33,8 +40,19 @@ public class Canvas extends JPanel {
     public void setCurrentMode(Mode mode) {
         this.currentMode = mode;
     }
+
     public void addShape(Shape shape) {
-        shapes.add(shape); repaint();
+        shapes.add(shape);
+        repaint();
+    }
+
+    public Port findPortAt(int x, int y) {
+        for (int i = shapes.size() - 1; i >= 0; i--) {
+            Port p = shapes.get(i).findPortAt(x, y);
+
+            if (p != null) return p;
+        }
+        return null;
     }
 
     @Override

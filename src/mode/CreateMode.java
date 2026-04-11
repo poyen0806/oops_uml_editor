@@ -4,7 +4,7 @@ import shape.Shape;
 import ui.Canvas;
 import java.awt.event.MouseEvent;
 
-public class CreateObject extends Mode {
+public class CreateMode extends Mode {
     @FunctionalInterface
     public interface ShapeCreator {
         Shape create(int x, int y);
@@ -14,14 +14,19 @@ public class CreateObject extends Mode {
     private final ShapeCreator creator;
     private final Runnable onComplete;
 
-    public CreateObject(Canvas canvas, ShapeCreator creator, Runnable onComplete) {
+    public CreateMode(Canvas canvas, ShapeCreator creator, Runnable onComplete) {
         this.canvas = canvas;
         this.creator = creator;
         this.onComplete = onComplete;
     }
 
-    @Override public void mousePressed(MouseEvent e) {}
-    @Override public void mouseDragged(MouseEvent e) {}
+    // 維持空
+    @Override
+    public void mousePressed(MouseEvent e) {}
+
+    // 維持空
+    @Override
+    public void mouseDragged(MouseEvent e) {}
 
     @Override
     public void mouseReleased(MouseEvent e) {

@@ -1,10 +1,12 @@
 package ui;
 
-import mode.CreateObject;
-import mode.SelectObject;
-import shape.Oval;
+import mode.CreateMode;
+import mode.LinkMode;
+import mode.SelectMode;
+import shape.*;
 import shape.Rectangle;
 import ui.icon.IconFactory;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -33,36 +35,45 @@ public class ToolBar extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(PAD_TOP, PAD_LEFT, PAD_BOTTOM, PAD_RIGHT));
         setBackground(INACTIVE_BG);
 
-        add(createModeButton(IconFactory.createSelectIcon(), "Select"));
-        add(createModeButton(IconFactory.createAssociationIcon(), "Association"));
-        add(createModeButton(IconFactory.createGeneralizationIcon(), "Generalization"));
-        add(createModeButton(IconFactory.createCompositionIcon(), "Composition"));
+        add(createModeButton(IconFactory.createSelectIcon(), "Select",
+                () -> canvas.setCurrentMode(new SelectMode())));
+
+        add(createModeButton(IconFactory.createAssociationIcon(), "Association",
+                () -> canvas.setCurrentMode(new LinkMode(canvas, AssociationLine::new))));
+
+        add(createModeButton(IconFactory.createGeneralizationIcon(), "Generalization",
+                () -> canvas.setCurrentMode(new LinkMode(canvas, GeneralizationLine::new))));
+
+        add(createModeButton(IconFactory.createCompositionIcon(), "Composition",
+                () -> canvas.setCurrentMode(new LinkMode(canvas, CompositionLine::new))));
 
         add(createDragBtn(IconFactory.createRectIcon(), "Rectangle", Rectangle::new));
+
         add(createDragBtn(IconFactory.createOvalIcon(), "Oval", Oval::new));
 
         this.lastModeBtn = (JButton) getComponent(0);
         reset();
     }
 
-    private JButton createModeButton(Icon icon, String tip) {
+    private JButton createModeButton(Icon icon, String tip, Runnable onSelect) {
         JButton btn = createBaseBtn(icon, tip);
         btn.addActionListener(e -> {
             lastModeBtn = btn;
             highlight(btn);
-            canvas.setCurrentMode(new SelectObject());
+            onSelect.run();
         });
         return btn;
     }
 
-    private JButton createDragBtn(Icon icon, String tip, CreateObject.ShapeCreator creator) {
+    private JButton createDragBtn(Icon icon, String tip, CreateMode.ShapeCreator creator) {
         JButton btn = createBaseBtn(icon, tip);
         btn.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 highlight(btn);
-                canvas.setCurrentMode(new CreateObject(canvas, creator, () -> reset()));
+                canvas.setCurrentMode(new CreateMode(canvas, creator, () -> reset()));
             }
+
             @Override
             public void mouseReleased(MouseEvent e) {
                 forward(e);
@@ -102,6 +113,6 @@ public class ToolBar extends JPanel {
 
     private void reset() {
         highlight(lastModeBtn);
-        canvas.setCurrentMode(new SelectObject());
+        canvas.setCurrentMode(new SelectMode());
     }
 }

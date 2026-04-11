@@ -2,12 +2,14 @@ package mode;
 
 import java.awt.event.MouseEvent;
 
-public class SelectObject extends Mode {
-    // 目前先留空，這是為了 Case C 預留的檔案，並作為預設的常駐模式
+public class SelectMode extends Mode {
+    // 維持空
     @Override
     public void mousePressed(MouseEvent e) {}
+    // 維持空
     @Override
     public void mouseReleased(MouseEvent e) {}
+    // 維持空
     @Override
     public void mouseDragged(MouseEvent e) {}
 }
