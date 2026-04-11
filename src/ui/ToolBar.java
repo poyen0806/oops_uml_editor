@@ -1,114 +1,107 @@
 package ui;
 
 import mode.CreateObject;
-import mode.Mode;
 import mode.SelectObject;
 import shape.Oval;
 import shape.Rectangle;
 import ui.icon.IconFactory;
-
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.BorderFactory;
-import java.awt.Color;
-import java.awt.GridLayout;
-import java.awt.event.ActionListener;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 
 public class ToolBar extends JPanel {
+    private static final Color ACTIVE_BG = new Color(180, 180, 180);
+    private static final Color INACTIVE_BG = Color.WHITE;
 
-    private static final Color ACTIVE_BG_COLOR = new Color(180, 180, 180);
-    private static final Color INACTIVE_BG_COLOR = Color.WHITE;
+    private static final int GRID_ROWS = 6;
+    private static final int GRID_COLS = 1;
+    private static final int GRID_GAP = 10;
 
-    private static final int ROWS = 6;
-    private static final int COLS = 1;
-    private static final int HGAP = 10;
-    private static final int VGAP = 10;
-
-    private static final int PADDING_TOP = 10;
-    private static final int PADDING_LEFT = 5;
-    private static final int PADDING_BOTTOM = 10;
-    private static final int PADDING_RIGHT = 5;
+    private static final int PAD_TOP = 10;
+    private static final int PAD_LEFT = 5;
+    private static final int PAD_BOTTOM = 10;
+    private static final int PAD_RIGHT = 5;
 
     private final Canvas canvas;
-    private final JButton selectBtn;
-    private JButton currentlyHighlightedBtn;
+    private JButton currentBtn;
+    private JButton lastModeBtn;
 
     public ToolBar(Canvas canvas) {
         this.canvas = canvas;
 
-        setLayout(new GridLayout(ROWS, COLS, HGAP, VGAP));
-        setBorder(BorderFactory.createEmptyBorder(
-                PADDING_TOP, PADDING_LEFT, PADDING_BOTTOM, PADDING_RIGHT
-        ));
+        setLayout(new GridLayout(GRID_ROWS, GRID_COLS, GRID_GAP, GRID_GAP));
+        setBorder(BorderFactory.createEmptyBorder(PAD_TOP, PAD_LEFT, PAD_BOTTOM, PAD_RIGHT));
+        setBackground(INACTIVE_BG);
 
-        selectBtn = createButton(IconFactory.createSelectIcon(), "Select");
-        JButton assocBtn = createButton(IconFactory.createAssociationIcon(), "Association");
-        JButton genBtn = createButton(IconFactory.createGeneralizationIcon(), "Generalization");
-        JButton compBtn = createButton(IconFactory.createCompositionIcon(), "Composition");
-        JButton rectBtn = createButton(IconFactory.createRectIcon(), "Rect");
-        JButton ovalBtn = createButton(IconFactory.createOvalIcon(), "Oval");
+        add(createModeButton(IconFactory.createSelectIcon(), "Select"));
+        add(createModeButton(IconFactory.createAssociationIcon(), "Association"));
+        add(createModeButton(IconFactory.createGeneralizationIcon(), "Generalization"));
+        add(createModeButton(IconFactory.createCompositionIcon(), "Composition"));
 
-        setHighlightedButton(selectBtn);
-        canvas.setCurrentMode(new SelectObject());
+        add(createDragBtn(IconFactory.createRectIcon(), "Rectangle", Rectangle::new));
+        add(createDragBtn(IconFactory.createOvalIcon(), "Oval", Oval::new));
 
-        bindActions(selectBtn, assocBtn, genBtn, compBtn, rectBtn, ovalBtn);
+        this.lastModeBtn = (JButton) getComponent(0);
+        reset();
     }
 
-    private void bindActions(JButton selectBtn, JButton assocBtn, JButton genBtn,
-                             JButton compBtn, JButton rectBtn, JButton ovalBtn) {
-
-        ActionListener stickyListener = e -> {
-            JButton clickedBtn = (JButton) e.getSource();
-            Mode newMode = new SelectObject(); // 之後可根據按鈕注入不同 Mode
-            setHighlightedButton(clickedBtn);
-            canvas.setCurrentMode(newMode);
-        };
-
-        selectBtn.addActionListener(stickyListener);
-        assocBtn.addActionListener(stickyListener);
-        genBtn.addActionListener(stickyListener);
-        compBtn.addActionListener(stickyListener);
-
-        rectBtn.addActionListener(e -> {
-            setHighlightedButton(rectBtn);
-            canvas.setCurrentMode(new CreateObject(canvas, Rectangle::new, this::forceResetToSelectMode));
+    private JButton createModeButton(Icon icon, String tip) {
+        JButton btn = createBaseBtn(icon, tip);
+        btn.addActionListener(e -> {
+            lastModeBtn = btn;
+            highlight(btn);
+            canvas.setCurrentMode(new SelectObject());
         });
-
-        ovalBtn.addActionListener(e -> {
-            setHighlightedButton(ovalBtn);
-            canvas.setCurrentMode(new CreateObject(canvas, Oval::new, this::forceResetToSelectMode));
-        });
-    }
-
-    private JButton createButton(Icon icon, String tooltip) {
-        JButton btn = new JButton(icon);
-        btn.setToolTipText(tooltip);
-
-        btn.setOpaque(true);
-        btn.setContentAreaFilled(true);
-
-        btn.setBorderPainted(false);
-        btn.setFocusPainted(false);
-        btn.setFocusable(false);
-
-        btn.setBackground(INACTIVE_BG_COLOR);
-
-        add(btn);
         return btn;
     }
 
-    private void setHighlightedButton(JButton btn) {
-        if (currentlyHighlightedBtn != null) {
-            currentlyHighlightedBtn.setBackground(INACTIVE_BG_COLOR);
-        }
-
-        currentlyHighlightedBtn = btn;
-        currentlyHighlightedBtn.setBackground(ACTIVE_BG_COLOR);
+    private JButton createDragBtn(Icon icon, String tip, CreateObject.ShapeCreator creator) {
+        JButton btn = createBaseBtn(icon, tip);
+        btn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                highlight(btn);
+                canvas.setCurrentMode(new CreateObject(canvas, creator, () -> reset()));
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                forward(e);
+            }
+        });
+        btn.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                forward(e);
+            }
+        });
+        return btn;
     }
 
-    public void forceResetToSelectMode() {
-        setHighlightedButton(selectBtn);
+    private void forward(MouseEvent e) {
+        Component src = (Component) e.getSource();
+        Point p = SwingUtilities.convertPoint(src, e.getPoint(), canvas);
+        canvas.dispatchEvent(new MouseEvent(canvas, e.getID(), e.getWhen(),
+                e.getModifiersEx(), p.x, p.y, e.getClickCount(), e.isPopupTrigger()));
+    }
+
+    private JButton createBaseBtn(Icon icon, String tip) {
+        JButton btn = new JButton(icon);
+        btn.setToolTipText(tip);
+        btn.setOpaque(true);
+        btn.setBackground(INACTIVE_BG);
+        btn.setBorderPainted(false);
+        btn.setFocusable(false);
+        return btn;
+    }
+
+    private void highlight(JButton btn) {
+        if (currentBtn != null) currentBtn.setBackground(INACTIVE_BG);
+        currentBtn = btn;
+        currentBtn.setBackground(ACTIVE_BG);
+    }
+
+    private void reset() {
+        highlight(lastModeBtn);
         canvas.setCurrentMode(new SelectObject());
     }
 }

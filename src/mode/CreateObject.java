@@ -1,44 +1,31 @@
 package mode;
 
-import shape.BasicObject;
-import shape.ShapeFactory;
+import shape.Shape;
 import ui.Canvas;
 import java.awt.event.MouseEvent;
 
 public class CreateObject extends Mode {
+    @FunctionalInterface
+    public interface ShapeCreator {
+        Shape create(int x, int y);
+    }
+
     private final Canvas canvas;
-    private final Runnable onCompleteCallback;
-    private final ShapeFactory factory;
-    private int startX, startY;
+    private final ShapeCreator creator;
+    private final Runnable onComplete;
 
-    public CreateObject(Canvas canvas, ShapeFactory factory, Runnable onCompleteCallback) {
+    public CreateObject(Canvas canvas, ShapeCreator creator, Runnable onComplete) {
         this.canvas = canvas;
-        this.factory = factory;
-        this.onCompleteCallback = onCompleteCallback;
+        this.creator = creator;
+        this.onComplete = onComplete;
     }
 
-    @Override
-    public void mousePressed(MouseEvent e) {
-        startX = e.getX();
-        startY = e.getY();
-    }
+    @Override public void mousePressed(MouseEvent e) {}
+    @Override public void mouseDragged(MouseEvent e) {}
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        int endX = e.getX();
-        int endY = e.getY();
-
-        // 防呆：沒有拖曳就不產生形狀
-        if (startX == endX && startY == endY) {
-            if (onCompleteCallback != null) onCompleteCallback.run();
-            return;
-        }
-
-        BasicObject obj = factory.create(startX, startY, endX, endY);
-        canvas.addShape(obj);
-
-        if (onCompleteCallback != null) {
-            onCompleteCallback.run();
-        }
+        canvas.addShape(creator.create(e.getX(), e.getY()));
+        if (onComplete != null) onComplete.run();
     }
 }
