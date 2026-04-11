@@ -1,6 +1,7 @@
 package ui;
 
 import mode.Mode;
+import shape.BasicObject;
 import shape.Port;
 import shape.Shape;
 
@@ -32,6 +33,11 @@ public class Canvas extends JPanel {
             public void mouseDragged(MouseEvent e) {
                 if (currentMode != null) currentMode.mouseDragged(e);
             }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                if (currentMode != null) currentMode.mouseMoved(e);
+            }
         };
         addMouseListener(adapter);
         addMouseMotionListener(adapter);
@@ -46,10 +52,39 @@ public class Canvas extends JPanel {
         repaint();
     }
 
+    public BasicObject findObjectAt(int x, int y) {
+        for (int i = shapes.size() - 1; i >= 0; i--) {
+            Shape s = shapes.get(i);
+            if (s instanceof BasicObject obj && obj.isContained(x, y)) return obj;
+        }
+        return null;
+    }
+
+    public void selectObjectsInArea(java.awt.Rectangle area) {
+        for (Shape s : shapes) {
+            if (s instanceof BasicObject obj) {
+                obj.setSelected(area.contains(obj.getBounds()));
+            }
+        }
+        repaint();
+    }
+
+    public void clearSelection() {
+        for (Shape s : shapes) {
+            if (s instanceof BasicObject obj) obj.setSelected(false);
+        }
+        repaint();
+    }
+
+    public void clearAllHover() {
+        for (Shape s : shapes) {
+            if (s instanceof BasicObject obj) obj.setHovered(false);
+        }
+    }
+
     public Port findPortAt(int x, int y) {
         for (int i = shapes.size() - 1; i >= 0; i--) {
             Port p = shapes.get(i).findPortAt(x, y);
-
             if (p != null) return p;
         }
         return null;

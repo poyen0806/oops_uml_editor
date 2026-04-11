@@ -27,5 +27,7 @@ public class Oval extends BasicObject {
         g2d.fillOval(x, y, width, height);
         g2d.setColor(Color.BLACK);
         g2d.drawOval(x, y, width, height);
+
+        super.drawPorts(g2d);
     }
 }

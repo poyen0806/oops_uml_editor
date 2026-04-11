@@ -20,14 +20,6 @@ public class CreateMode extends Mode {
         this.onComplete = onComplete;
     }
 
-    // 維持空
-    @Override
-    public void mousePressed(MouseEvent e) {}
-
-    // 維持空
-    @Override
-    public void mouseDragged(MouseEvent e) {}
-
     @Override
     public void mouseReleased(MouseEvent e) {
         canvas.addShape(creator.create(e.getX(), e.getY()));

@@ -22,10 +22,6 @@ public class LinkMode extends Mode {
         startPort = canvas.findPortAt(e.getX(), e.getY());
     }
 
-    // 維持空
-    @Override
-    public void mouseDragged(MouseEvent e) {}
-
     @Override
     public void mouseReleased(MouseEvent e) {
         if (startPort == null) return;

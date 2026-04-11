@@ -1,6 +1,7 @@
 package shape;
 
 import java.awt.*;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,7 @@ public abstract class BasicObject extends Shape {
     protected int x, y, width, height;
     protected List<Port> ports = new ArrayList<>();
     protected boolean isSelected = false;
+    public boolean isHovered = false;
 
     public BasicObject(int x, int y, int width, int height) {
         this.x = x;
@@ -33,6 +35,18 @@ public abstract class BasicObject extends Shape {
         this.isSelected = selected;
     }
 
+    public void setHovered(boolean hovered) {
+        this.isHovered = hovered;
+    }
+
+    public boolean isContained(int px, int py) {
+        return px >= x && px <= x + width && py >= y && py <= y + height;
+    }
+
+    public Rectangle getBounds() {
+        return new Rectangle(x, y, width, height);
+    }
+
     @Override
     public Port findPortAt(int mx, int my) {
         for (Port p : ports) {
@@ -42,7 +56,7 @@ public abstract class BasicObject extends Shape {
     }
 
     protected void drawPorts(Graphics2D g2d) {
-        if (!isSelected) return;
+        if (!isSelected && !isHovered) return;
         g2d.setColor(Color.BLACK);
         for (Port p : ports) {
             Point loc = p.getAbsoluteLocation();

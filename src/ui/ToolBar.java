@@ -1,12 +1,9 @@
 package ui;
 
-import mode.CreateMode;
-import mode.LinkMode;
-import mode.SelectMode;
+import mode.*;
 import shape.*;
 import shape.Rectangle;
 import ui.icon.IconFactory;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -15,14 +12,10 @@ public class ToolBar extends JPanel {
     private static final Color ACTIVE_BG = new Color(180, 180, 180);
     private static final Color INACTIVE_BG = Color.WHITE;
 
-    private static final int GRID_ROWS = 6;
-    private static final int GRID_COLS = 1;
-    private static final int GRID_GAP = 10;
-
-    private static final int PAD_TOP = 10;
-    private static final int PAD_LEFT = 5;
-    private static final int PAD_BOTTOM = 10;
-    private static final int PAD_RIGHT = 5;
+    private static final int ROWS = 6;
+    private static final int COLS = 1;
+    private static final int HGAP = 10;
+    private static final int VGAP = 10;
 
     private final Canvas canvas;
     private JButton currentBtn;
@@ -30,13 +23,11 @@ public class ToolBar extends JPanel {
 
     public ToolBar(Canvas canvas) {
         this.canvas = canvas;
-
-        setLayout(new GridLayout(GRID_ROWS, GRID_COLS, GRID_GAP, GRID_GAP));
-        setBorder(BorderFactory.createEmptyBorder(PAD_TOP, PAD_LEFT, PAD_BOTTOM, PAD_RIGHT));
+        setLayout(new GridLayout(ROWS, COLS, HGAP, VGAP));
         setBackground(INACTIVE_BG);
 
         add(createModeButton(IconFactory.createSelectIcon(), "Select",
-                () -> canvas.setCurrentMode(new SelectMode())));
+                () -> canvas.setCurrentMode(new SelectMode(canvas))));
 
         add(createModeButton(IconFactory.createAssociationIcon(), "Association",
                 () -> canvas.setCurrentMode(new LinkMode(canvas, AssociationLine::new))));
@@ -48,7 +39,6 @@ public class ToolBar extends JPanel {
                 () -> canvas.setCurrentMode(new LinkMode(canvas, CompositionLine::new))));
 
         add(createDragBtn(IconFactory.createRectIcon(), "Rectangle", Rectangle::new));
-
         add(createDragBtn(IconFactory.createOvalIcon(), "Oval", Oval::new));
 
         this.lastModeBtn = (JButton) getComponent(0);
@@ -73,17 +63,10 @@ public class ToolBar extends JPanel {
                 highlight(btn);
                 canvas.setCurrentMode(new CreateMode(canvas, creator, () -> reset()));
             }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                forward(e);
-            }
+            @Override public void mouseReleased(MouseEvent e) { forward(e); }
         });
         btn.addMouseMotionListener(new MouseMotionAdapter() {
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                forward(e);
-            }
+            @Override public void mouseDragged(MouseEvent e) { forward(e); }
         });
         return btn;
     }
@@ -98,10 +81,12 @@ public class ToolBar extends JPanel {
     private JButton createBaseBtn(Icon icon, String tip) {
         JButton btn = new JButton(icon);
         btn.setToolTipText(tip);
-        btn.setOpaque(true);
         btn.setBackground(INACTIVE_BG);
+
+        btn.setOpaque(true);
         btn.setBorderPainted(false);
         btn.setFocusable(false);
+
         return btn;
     }
 
@@ -112,7 +97,11 @@ public class ToolBar extends JPanel {
     }
 
     private void reset() {
+        if (lastModeBtn == null) return;
         highlight(lastModeBtn);
-        canvas.setCurrentMode(new SelectMode());
+
+        for (java.awt.event.ActionListener al : lastModeBtn.getActionListeners()) {
+            al.actionPerformed(new java.awt.event.ActionEvent(lastModeBtn, 0, null));
+        }
     }
 }

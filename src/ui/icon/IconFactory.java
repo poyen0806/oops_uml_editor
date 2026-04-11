@@ -42,22 +42,22 @@ public class IconFactory {
 
     // Association (包含一條主線與兩條組成箭頭的短線)
     // 箭頭主線的起點與終點 X 座標
-    private static final int ASSOC_LINE_START_X = 10;
-    private static final int ASSOC_LINE_END_X = 30;
+    private static final int ASSOC_LINE_START_X = 30;
+    private static final int ASSOC_LINE_END_X = 10;
     // 箭頭主線的 Y 座標 (水平線)
     private static final int ASSOC_LINE_Y = 20;
     // 箭頭上下分岔點的 X 座標
-    private static final int ASSOC_ARROW_TOP_X = 22;
+    private static final int ASSOC_ARROW_TOP_X = 18;
     // 箭頭上下分岔點的 Y 座標
     private static final int ASSOC_ARROW_TOP_Y = 12;
     private static final int ASSOC_ARROW_BOTTOM_Y = 28;
 
     // Generalization (包含一條主線與一個空心三角形)
     // 空心三角形的 3 個頂點
-    private static final int[] GEN_ARROW_X = { 20, 30, 30 };
-    private static final int[] GEN_ARROW_Y = { 20, 12, 28 };
+    private static final int[] GEN_ARROW_X = { 20, 20, 10 };
+    private static final int[] GEN_ARROW_Y = { 12, 28, 20 };
     // 連接三角形的主線起點與終點
-    private static final int GEN_LINE_START_X = 10;
+    private static final int GEN_LINE_START_X = 30;
     private static final int GEN_LINE_END_X = 20;
     private static final int GEN_LINE_Y = 20;
 
@@ -128,7 +128,7 @@ public class IconFactory {
             public void paintIcon(Component c, Graphics g, int x, int y) {
                 setupGraphics(g);
                 Polygon p = createShiftedPolygon(GEN_ARROW_X, GEN_ARROW_Y, x, y);
-                g.setColor(Color.WHITE);
+                g.setColor(FILL_COLOR);
                 g.fillPolygon(p);
                 g.setColor(BORDER_COLOR);
                 g.drawPolygon(p);
@@ -143,7 +143,7 @@ public class IconFactory {
             public void paintIcon(Component c, Graphics g, int x, int y) {
                 setupGraphics(g);
                 Polygon p = createShiftedPolygon(COMP_DIAMOND_X, COMP_DIAMOND_Y, x, y);
-                g.setColor(Color.WHITE);
+                g.setColor(FILL_COLOR);
                 g.fillPolygon(p);
                 g.setColor(BORDER_COLOR);
                 g.drawPolygon(p);

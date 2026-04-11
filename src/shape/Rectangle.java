@@ -38,5 +38,7 @@ public class Rectangle extends BasicObject {
         g2d.fillRect(x, y, width, height);
         g2d.setColor(Color.BLACK);
         g2d.drawRect(x, y, width, height);
+
+        super.drawPorts(g2d);
     }
 }
