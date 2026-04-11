@@ -31,9 +31,9 @@ public class Rectangle extends BasicObject {
 
     @Override
     public void draw(Graphics2D g2d) {
-        g2d.setColor(Color.WHITE);
+        g2d.setColor(fillColor);
         g2d.fillRect(x, y, width, height);
-        g2d.setColor(Color.BLACK);
+        g2d.setColor(Color.GRAY);
         g2d.drawRect(x, y, width, height);
         super.drawPorts(g2d);
     }

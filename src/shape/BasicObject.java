@@ -9,14 +9,16 @@ public abstract class BasicObject extends Shape {
     private static final int MIN_SIZE = 20;
     private static final int PORT_VISUAL_SIZE = 6;
     private static final int PORT_DRAW_OFFSET = PORT_VISUAL_SIZE / 2;
-    private static final Color PORT_COLOR = Color.BLACK;
-    private static final Color OBJECT_FILL_COLOR = Color.WHITE;
-    private static final Color OBJECT_LINE_COLOR = Color.BLACK;
+    private static final Color DEFAULT_FILL_COLOR = new Color(255, 255, 255);
+    private static final Color TEXT_COLOR = Color.BLACK;
 
     protected int x, y, width, height;
     protected List<Port> ports = new ArrayList<>();
     protected boolean isSelected = false;
     protected boolean isHovered = false;
+
+    protected String labelName = "";
+    protected Color fillColor = DEFAULT_FILL_COLOR;
 
     public BasicObject(int x, int y, int width, int height) {
         this.x = x;
@@ -28,27 +30,40 @@ public abstract class BasicObject extends Shape {
 
     protected abstract void createPorts();
 
+    public void updateLabel(String name, Color color) {
+        this.labelName = name;
+        this.fillColor = color;
+    }
+
+    protected void drawLabel(Graphics2D g2d) {
+        if (labelName == null || labelName.isEmpty()) return;
+
+        g2d.setColor(TEXT_COLOR);
+        FontMetrics fm = g2d.getFontMetrics();
+        int textWidth = fm.stringWidth(labelName);
+        int textHeight = fm.getAscent();
+
+        // 🌟 計算物件正中心位置
+        int lx = x + (width - textWidth) / 2;
+        int ly = y + (height + textHeight) / 2 - fm.getDescent();
+
+        g2d.drawString(labelName, lx, ly);
+    }
 
     public void resize(Port.Direction dir, int mouseX, int mouseY, Point anchor) {
-        String dirName = dir.name();
+        String d = dir.name();
+        int nL = d.contains("W") ? mouseX : (d.contains("E") ? anchor.x : x);
+        int nR = d.contains("E") ? mouseX : (d.contains("W") ? anchor.x : x + width);
+        int nT = d.contains("N") ? mouseY : (d.contains("S") ? anchor.y : y);
+        int nB = d.contains("S") ? mouseY : (d.contains("N") ? anchor.y : y + height);
 
-        int newL = dirName.contains("W") ? mouseX : (dirName.contains("E") ? anchor.x : this.x);
-        int newR = dirName.contains("E") ? mouseX : (dirName.contains("W") ? anchor.x : this.x + this.width);
-        int newT = dirName.contains("N") ? mouseY : (dirName.contains("S") ? anchor.y : this.y);
-        int newB = dirName.contains("S") ? mouseY : (dirName.contains("N") ? anchor.y : this.y + this.height);
+        if (Math.abs(nR - nL) < MIN_SIZE) nL = (nL < nR) ? nR - MIN_SIZE : nR + MIN_SIZE;
+        if (Math.abs(nB - nT) < MIN_SIZE) nT = (nT < nB) ? nB - MIN_SIZE : nB + MIN_SIZE;
 
-        if (Math.abs(newR - newL) < MIN_SIZE) {
-            newL = (newL < newR) ? newR - MIN_SIZE : newR + MIN_SIZE;
-        }
-        if (Math.abs(newB - newT) < MIN_SIZE) {
-            newT = (newT < newB) ? newB - MIN_SIZE : newB + MIN_SIZE;
-        }
-
-        this.x = Math.min(newL, newR);
-        this.y = Math.min(newT, newB);
-        this.width = Math.abs(newR - newL);
-        this.height = Math.abs(newB - newT);
-
+        this.x = Math.min(nL, nR);
+        this.y = Math.min(nT, nB);
+        this.width = Math.abs(nR - nL);
+        this.height = Math.abs(nB - nT);
         createPorts();
     }
 
@@ -65,13 +80,38 @@ public abstract class BasicObject extends Shape {
     }
 
     protected void drawPorts(Graphics2D g2d) {
+        drawLabel(g2d);
         if (!isSelected && !isHovered) return;
-        g2d.setColor(PORT_COLOR);
+        g2d.setColor(Color.BLACK);
         for (Port p : ports) {
             Point loc = p.getAbsoluteLocation();
             g2d.fillRect(loc.x - PORT_DRAW_OFFSET, loc.y - PORT_DRAW_OFFSET,
                     PORT_VISUAL_SIZE, PORT_VISUAL_SIZE);
         }
+    }
+
+    public String getLabelName() {
+        return labelName;
+    }
+
+    public Color getFillColor() {
+        return fillColor;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 
     @Override
@@ -102,21 +142,5 @@ public abstract class BasicObject extends Shape {
     @Override
     public Rectangle getBounds() {
         return new Rectangle(x, y, width, height);
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
     }
 }
