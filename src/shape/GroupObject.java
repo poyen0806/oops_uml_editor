@@ -4,9 +4,8 @@ import java.awt.*;
 import java.util.List;
 
 public class GroupObject extends BasicObject {
-    private static final Color GROUP_BORDER_COLOR = new Color(100, 149, 237, 120);
-    private static final int INITIAL_PLACEHOLDER = 0;
-
+    private static final Color BORDER_COLOR = new Color(100, 149, 237, 120);
+    private static final int INITIAL_VAL = 0;
     private static final float[] DASH_PATTERN = { 9.0f };
     private static final float DASH_PHASE = 0.0f;
     private static final float LINE_WIDTH = 1.0f;
@@ -14,7 +13,7 @@ public class GroupObject extends BasicObject {
     private final List<BasicObject> members;
 
     public GroupObject(List<BasicObject> members) {
-        super(INITIAL_PLACEHOLDER, INITIAL_PLACEHOLDER, INITIAL_PLACEHOLDER, INITIAL_PLACEHOLDER);
+        super(INITIAL_VAL, INITIAL_VAL, INITIAL_VAL, INITIAL_VAL);
         this.members = members;
         updateBounds();
     }
@@ -41,21 +40,24 @@ public class GroupObject extends BasicObject {
     @Override
     public void draw(Graphics2D g2d) {
         for (BasicObject bo : members) {
-            boolean originalSelected = bo.isSelected();
+            boolean wasSelected = bo.isSelected();
+            boolean wasHovered = bo.isHovered();
 
+            // 繪圖時暫時關閉成員 Port
             bo.setSelected(false);
+            bo.setHovered(false);
 
             bo.draw(g2d);
-
-            bo.setSelected(originalSelected);
+            bo.setSelected(wasSelected);
+            bo.setHovered(wasHovered);
         }
 
-        if (isSelected) {
-            g2d.setColor(GROUP_BORDER_COLOR);
-            Stroke dashed = new BasicStroke(LINE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, DASH_PATTERN, DASH_PHASE);
-            g2d.setStroke(dashed);
+        if (isSelected || isHovered) {
+            Stroke oldStroke = g2d.getStroke();
+            g2d.setColor(BORDER_COLOR);
+            g2d.setStroke(new BasicStroke(LINE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, DASH_PATTERN, DASH_PHASE));
             g2d.drawRect(x, y, width, height);
-            g2d.setStroke(new BasicStroke(LINE_WIDTH));
+            g2d.setStroke(oldStroke);
         }
     }
 
@@ -64,6 +66,22 @@ public class GroupObject extends BasicObject {
         super.setSelected(selected);
         for (BasicObject bo : members) {
             bo.setSelected(selected);
+        }
+    }
+
+    @Override
+    public void setHovered(boolean hovered) {
+        super.setHovered(hovered);
+        for (BasicObject bo : members) {
+            bo.setHovered(hovered);
+        }
+    }
+
+    @Override
+    public void move(int dx, int dy) {
+        super.move(dx, dy);
+        for (BasicObject bo : members) {
+            bo.move(dx, dy);
         }
     }
 

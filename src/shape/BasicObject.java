@@ -51,6 +51,12 @@ public abstract class BasicObject extends Shape {
         return null;
     }
 
+    @Override
+    public void move(int dx, int dy) {
+        this.x += dx;
+        this.y += dy;
+    }
+
     protected void drawPorts(Graphics2D g2d) {
         if (!isSelected && !isHovered) return;
         g2d.setColor(Color.BLACK);

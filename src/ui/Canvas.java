@@ -31,6 +31,10 @@ public class Canvas extends JPanel {
 
     public void setCurrentMode(Mode mode) { this.currentMode = mode; }
 
+    public List<Shape> getShapes() {
+        return shapes;
+    }
+
     public void addShape(Shape shape) {
         shapes.add(shape);
         repaint();

@@ -15,8 +15,9 @@ public abstract class Shape {
     public boolean isContained(int px, int py) { return false; }
     public Rectangle getBounds() { return null; }
 
+    public void move(int dx, int dy) {}
+
     public Port findPortAt(int x, int y) {
         return null;
     }
-
 }
