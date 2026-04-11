@@ -8,28 +8,25 @@ public class Rectangle extends BasicObject {
 
     public Rectangle(int x, int y) {
         super(x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-        createPorts();
     }
 
     @Override
     protected void createPorts() {
-        int halfW = width / 2;
-        int halfH = height / 2;
+        ports.clear();
+        int hw = width / 2;
+        int hh = height / 2;
 
-        int[][] portOffsets = {
-                {0, 0},
-                {halfW, 0},
-                {width, 0},
-                {width, halfH},
-                {width, height},
-                {halfW, height},
-                {0, height},
-                {0, halfH}
-        };
+        // 角落
+        ports.add(new Port(this, Port.Direction.NW, 0, 0));
+        ports.add(new Port(this, Port.Direction.NE, width, 0));
+        ports.add(new Port(this, Port.Direction.SW, 0, height));
+        ports.add(new Port(this, Port.Direction.SE, width, height));
 
-        for (int[] offset : portOffsets) {
-            ports.add(new Port(this, offset[0], offset[1]));
-        }
+        // 四邊中點
+        ports.add(new Port(this, Port.Direction.N, hw, 0));
+        ports.add(new Port(this, Port.Direction.S, hw, height));
+        ports.add(new Port(this, Port.Direction.W, 0, hh));
+        ports.add(new Port(this, Port.Direction.E, width, hh));
     }
 
     @Override
@@ -38,7 +35,6 @@ public class Rectangle extends BasicObject {
         g2d.fillRect(x, y, width, height);
         g2d.setColor(Color.BLACK);
         g2d.drawRect(x, y, width, height);
-
         super.drawPorts(g2d);
     }
 }

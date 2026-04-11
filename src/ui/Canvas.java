@@ -114,6 +114,13 @@ public class Canvas extends JPanel {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        for (Shape s : shapes) s.draw(g2d);
+
+        for (Shape s : shapes) {
+            s.draw(g2d);
+        }
+
+        if (currentMode != null) {
+            currentMode.drawOverlay(g2d);
+        }
     }
 }
