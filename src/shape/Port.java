@@ -22,7 +22,21 @@ public class Port {
     }
 
     public Point getAbsoluteLocation() {
-        return new Point(parent.getX() + offsetX, parent.getY() + offsetY);
+        int x = parent.getX();
+        int y = parent.getY();
+        int w = parent.getWidth();
+        int h = parent.getHeight();
+
+        return switch (direction) {
+            case NW -> new Point(x, y);
+            case NE -> new Point(x + w, y);
+            case SW -> new Point(x, y + h);
+            case SE -> new Point(x + w, y + h);
+            case N  -> new Point(x + w / 2, y);
+            case S  -> new Point(x + w / 2, y + h);
+            case W  -> new Point(x, y + h / 2);
+            case E  -> new Point(x + w, y + h / 2);
+        };
     }
 
     public boolean isHit(int px, int py) {

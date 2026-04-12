@@ -12,7 +12,6 @@ public class Rectangle extends BasicObject {
 
     @Override
     protected void createPorts() {
-        ports.clear();
         int hw = width / 2;
         int hh = height / 2;
 
