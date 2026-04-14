@@ -1,9 +1,12 @@
-package ui;
+package ui.component;
 
 import mode.*;
-import shape.*;
-import shape.Rectangle;
-import ui.icon.IconFactory;
+import shape.basic.Oval;
+import shape.basic.Rectangle;
+import shape.link.AssociationLine;
+import shape.link.CompositionLine;
+import shape.link.GeneralizationLine;
+import ui.factory.IconFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;

@@ -1,6 +1,9 @@
 package ui;
 
-import shape.BasicObject;
+import ui.component.Canvas;
+import ui.component.ToolBar;
+import ui.dialog.LabelDialog;
+import shape.basic.BasicObject;
 import shape.Shape;
 
 import javax.swing.*;

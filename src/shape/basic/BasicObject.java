@@ -1,4 +1,7 @@
-package shape;
+package shape.basic;
+
+import shape.Port;
+import shape.Shape;
 
 import java.awt.*;
 import java.awt.Rectangle;

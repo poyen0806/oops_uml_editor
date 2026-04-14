@@ -1,8 +1,8 @@
-package ui;
+package ui.component;
 
 import mode.Mode;
-import shape.BasicObject;
-import shape.GroupObject;
+import shape.basic.BasicObject;
+import shape.composite.GroupObject;
 import shape.Port;
 import shape.Shape;
 

@@ -1,8 +1,8 @@
 package mode;
 
-import shape.Line;
+import shape.link.Line;
 import shape.Port;
-import ui.Canvas;
+import ui.component.Canvas;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;

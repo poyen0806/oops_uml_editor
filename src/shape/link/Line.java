@@ -1,4 +1,7 @@
-package shape;
+package shape.link;
+
+import shape.Port;
+import shape.Shape;
 
 import java.awt.*;
 

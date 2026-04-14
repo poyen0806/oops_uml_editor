@@ -1,9 +1,9 @@
 package mode;
 
-import shape.BasicObject;
+import shape.basic.BasicObject;
 import shape.Port;
 import shape.Shape;
-import ui.Canvas;
+import ui.component.Canvas;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;

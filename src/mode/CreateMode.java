@@ -1,7 +1,7 @@
 package mode;
 
 import shape.Shape;
-import ui.Canvas;
+import ui.component.Canvas;
 import java.awt.event.MouseEvent;
 
 public class CreateMode extends Mode {

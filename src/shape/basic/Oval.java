@@ -1,4 +1,6 @@
-package shape;
+package shape.basic;
+
+import shape.Port;
 
 import java.awt.*;
 

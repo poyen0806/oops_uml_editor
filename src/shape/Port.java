@@ -1,5 +1,7 @@
 package shape;
 
+import shape.basic.BasicObject;
+
 import java.awt.*;
 
 public class Port {

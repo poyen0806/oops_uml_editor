@@ -1,4 +1,4 @@
-package ui.icon;
+package ui.factory;
 
 import javax.swing.Icon;
 import java.awt.BasicStroke;

@@ -1,4 +1,6 @@
-package shape;
+package shape.composite;
+
+import shape.basic.BasicObject;
 
 import java.awt.*;
 import java.util.List;
