@@ -8,7 +8,15 @@ import ui.component.Canvas;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
+/**
+ * Handles three distinct behaviors based on what the user clicks:
+ * 1. Resizing (clicking a Port)
+ * 2. Moving (clicking a Shape)
+ * 3. Area Selection (clicking empty Canvas)
+ */
 public class SelectMode extends Mode {
+
+    // Visual styling for the ephemeral selection box
     private static final Color OVERLAY_FILL = new Color(0, 120, 215, 30);
     private static final Color OVERLAY_BORDER = new Color(0, 120, 215, 150);
     private static final float[] DASH_PATTERN = {5.0f};
@@ -17,10 +25,12 @@ public class SelectMode extends Mode {
     private static final BasicStroke NORMAL_STROKE = new BasicStroke(1);
 
     private final Canvas canvas;
+
+    // Tracks the current interaction context
     private Point startPoint, lastPoint, currentPoint;
-    private boolean isMoving = false;
-    private Port resizingPort = null;
-    private Point anchorPoint = null;
+    private boolean isMoving = false; // True if dragging an object body
+    private Port resizingPort = null; // The specific port grabbed for resizing
+    private Point anchorPoint = null; // The stationary opposite corner during a resize operation
 
     public SelectMode(Canvas canvas) {
         this.canvas = canvas;
@@ -29,9 +39,12 @@ public class SelectMode extends Mode {
     @Override
     public void mousePressed(MouseEvent e) {
         startPoint = lastPoint = currentPoint = e.getPoint();
+
+        // Check if a resize Port was clicked
         resizingPort = canvas.findPortAt(e.getX(), e.getY());
 
         if (resizingPort != null) {
+            // Calculate the anchor point opposite to the dragged port
             BasicObject obj = resizingPort.getParent();
             Port.Direction dir = resizingPort.getDirection();
 
@@ -42,14 +55,17 @@ public class SelectMode extends Mode {
             canvas.clearSelection();
             obj.setSelected(true);
         } else {
+            // Check if a Shape body was clicked
             Shape target = canvas.findObjectAt(e.getX(), e.getY());
             if (target != null) {
+                // If clicking an unselected shape, clear others and select it
                 if (!target.isSelected()) {
                     canvas.clearSelection();
                     target.setSelected(true);
                 }
                 isMoving = true;
             } else {
+                // Empty space clicked
                 canvas.clearSelection();
                 isMoving = false;
             }
@@ -60,30 +76,40 @@ public class SelectMode extends Mode {
     @Override
     public void mouseDragged(MouseEvent e) {
         currentPoint = e.getPoint();
+
         if (resizingPort != null && anchorPoint != null) {
+            // Execute Resize. Delegates the math to the BasicObject.
             resizingPort.getParent().resize(resizingPort.getDirection(), e.getX(), e.getY(), anchorPoint);
         } else if (isMoving && lastPoint != null) {
+            // Execute Move. Applies delta (dx, dy) to all currently selected shapes.
             int dx = e.getX() - lastPoint.x;
             int dy = e.getY() - lastPoint.y;
             for (Shape s : canvas.getShapes()) {
                 if (s.isSelected()) s.move(dx, dy);
             }
-            lastPoint = e.getPoint();
+            lastPoint = e.getPoint(); // Update reference point for continuous smooth dragging
         }
+
+        // Note: If neither resizing nor moving, we are in Lasso state.
+        // The dragging visual is handled entirely by drawOverlay().
         canvas.repaint();
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        // Finalize Lasso Selection.
+        // Triggered only if we weren't interacting with a specific object or port.
         if (resizingPort == null && !isMoving && startPoint != null && !startPoint.equals(e.getPoint())) {
             int x = Math.min(startPoint.x, e.getX());
             int y = Math.min(startPoint.y, e.getY());
             int w = Math.abs(startPoint.x - e.getX());
             int h = Math.abs(startPoint.y - e.getY());
+
+            // Delegates the collision detection to the Canvas
             canvas.selectObjectsInArea(new java.awt.Rectangle(x, y, w, h));
         }
 
-        // 狀態清理
+        // Reset the state machine for the next interaction cycle
         resizingPort = null;
         anchorPoint = null;
         isMoving = false;
@@ -93,7 +119,7 @@ public class SelectMode extends Mode {
 
     @Override
     public void drawOverlay(Graphics2D g2d) {
-        // 僅在框選模式下繪製
+        // Ephemeral Rendering: Only draws the lasso box if we are explicitly in the Lasso state
         if (resizingPort == null && !isMoving && startPoint != null && currentPoint != null) {
             int x = Math.min(startPoint.x, currentPoint.x);
             int y = Math.min(startPoint.y, currentPoint.y);

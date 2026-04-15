@@ -9,67 +9,57 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 
+/**
+ * A Factory utility class responsible for procedurally generating all UI icons.
+ * Replaces the need for external image files (e.g., PNGs), ensuring the UI
+ * remains lightweight, resolution-independent, and perfectly themed.
+ */
 public class IconFactory {
 
-    // 圖示的標準寬度與高度
+    // --- Global Metric & Style Constants ---
     private static final int ICON_WIDTH = 40;
     private static final int ICON_HEIGHT = 40;
-
-    // 預設的圖形填滿顏色 (用於 Rect, Oval, Select)
     private static final Color FILL_COLOR = Color.GRAY;
-
-    // 預設的線條與邊框顏色
     private static final Color BORDER_COLOR = Color.DARK_GRAY;
-
-    // 全域線條粗細
     private static final int STROKE_WIDTH = 2;
 
-    // 矩形的邊長，同時也是橢圓的高度
+    // --- Basic Shapes Geometry (Rect, Oval) ---
     private static final int SHAPE_SIZE = 20;
-
-    // 圖形距離畫布左上角的基礎留白
     private static final int SHAPE_PADDING = 10;
-
-    // 橢圓形寬度
     private static final int OVAL_WIDTH = 28;
-
-    // 橢圓形的水平起點偏移量
     private static final int OVAL_PADDING_X = 6;
 
-    // Select (游標形狀的 7 個頂點)
+    // --- Select Cursor Geometry ---
+    // Represents the 7 vertices of a traditional mouse pointer arrow
     private static final int[] SELECT_X = { 12, 12, 16, 20, 24, 19, 27 };
     private static final int[] SELECT_Y = { 10, 28, 23, 31, 29, 21, 21 };
 
-    // Association (包含一條主線與兩條組成箭頭的短線)
-    // 箭頭主線的起點與終點 X 座標
+    // --- Association Line Geometry ---
     private static final int ASSOC_LINE_START_X = 30;
     private static final int ASSOC_LINE_END_X = 10;
-    // 箭頭主線的 Y 座標 (水平線)
     private static final int ASSOC_LINE_Y = 20;
-    // 箭頭上下分岔點的 X 座標
     private static final int ASSOC_ARROW_TOP_X = 18;
-    // 箭頭上下分岔點的 Y 座標
     private static final int ASSOC_ARROW_TOP_Y = 12;
     private static final int ASSOC_ARROW_BOTTOM_Y = 28;
 
-    // Generalization (包含一條主線與一個空心三角形)
-    // 空心三角形的 3 個頂點
+    // --- Generalization Line Geometry ---
     private static final int[] GEN_ARROW_X = { 20, 20, 10 };
     private static final int[] GEN_ARROW_Y = { 12, 28, 20 };
-    // 連接三角形的主線起點與終點
     private static final int GEN_LINE_START_X = 30;
     private static final int GEN_LINE_END_X = 20;
     private static final int GEN_LINE_Y = 20;
 
-    // Composition (包含一條主線與一個實心菱形)
-    // 菱形的 4 個頂點
+    // --- Composition Line Geometry ---
     private static final int[] COMP_DIAMOND_X = { 6, 12, 18, 12 };
     private static final int[] COMP_DIAMOND_Y = { 20, 14, 20, 26 };
-    // 連接菱形的主線起點與終點
     private static final int COMP_LINE_START_X = 18;
     private static final int COMP_LINE_END_X = 30;
     private static final int COMP_LINE_Y = 20;
 
+    /**
+     * Abstract base class providing common rendering context and geometry helpers.
+     * Prevents code duplication across the concrete Icon implementations.
+     */
     private static abstract class BaseIcon implements Icon {
         @Override
         public int getIconWidth() { return ICON_WIDTH; }
@@ -77,12 +67,19 @@ public class IconFactory {
         @Override
         public int getIconHeight() { return ICON_HEIGHT; }
 
+        /**
+         * Standardizes the graphics context, enabling antialiasing for smooth edges.
+         */
         protected void setupGraphics(Graphics g) {
             Graphics2D g2d = (Graphics2D) g;
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2d.setStroke(new BasicStroke(STROKE_WIDTH));
         }
 
+        /**
+         * Helper method to translate base geometric coordinates into the actual
+         * rendering space of the icon bounding box.
+         */
         protected Polygon createShiftedPolygon(int[] baseX, int[] baseY, int shiftX, int shiftY) {
             int length = baseX.length;
             int[] px = new int[length];
@@ -94,6 +91,8 @@ public class IconFactory {
             return new Polygon(px, py, length);
         }
     }
+
+    // --- Factory Methods for Generating Specific Icons via Anonymous Inner Classes ---
 
     public static Icon createSelectIcon() {
         return new BaseIcon() {

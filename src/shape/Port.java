@@ -4,25 +4,35 @@ import shape.basic.BasicObject;
 
 import java.awt.*;
 
+/**
+ * Represents a connection anchor on a BasicObject.
+ * Facilitates shape linking and acts as the interaction handle for resizing operations.
+ */
 public class Port {
+
+    // Defines the 8 cardinal and ordinal anchor positions
     public enum Direction {
         N, S, E, W,
         NW, NE, SW, SE
     }
 
+    // Hit-box tolerance for mouse interactions
     private static final int SENSITIVITY_RADIUS = 5;
+
+    // Structural relationship: A Port belongs strictly to one BasicObject
     private final BasicObject parent;
     private final Direction direction;
-    private final int offsetX;
-    private final int offsetY;
 
-    public Port(BasicObject parent, Direction direction, int offsetX, int offsetY) {
+    public Port(BasicObject parent, Direction direction) {
         this.parent = parent;
         this.direction = direction;
-        this.offsetX = offsetX;
-        this.offsetY = offsetY;
     }
 
+    /**
+     * Dynamically calculates the Port's current screen coordinates.
+     * By querying the parent's spatial data in real-time, this ensures
+     * attached Links automatically sync their endpoints when the parent is resized.
+     */
     public Point getAbsoluteLocation() {
         int x = parent.getX();
         int y = parent.getY();
@@ -41,6 +51,10 @@ public class Port {
         };
     }
 
+    /**
+     * Hit-testing logic using the circular distance formula.
+     * Determines if a mouse coordinate falls within the Port's interactive radius.
+     */
     public boolean isHit(int px, int py) {
         Point loc = getAbsoluteLocation();
         return Math.pow(px - loc.x, 2) + Math.pow(py - loc.y, 2) <= Math.pow(SENSITIVITY_RADIUS, 2);
